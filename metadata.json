@@ -1,0 +1,5 @@
+{
+  "name": "Accessible Persona Card",
+  "description": "A React application showcasing an accessible persona card with a title, illustration, and detailed description, styled with Tailwind CSS for a modern user experience.",
+  "requestFramePermissions": []
+}
