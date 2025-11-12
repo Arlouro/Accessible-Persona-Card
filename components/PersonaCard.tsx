@@ -34,7 +34,6 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
   const paragraphRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const controlRefs = useRef<(HTMLButtonElement | null)[]>([]);
   
-  // Refs for Web Audio API context and nodes
   const audioContextRef = useRef<AudioContext | null>(null);
   const soundscapeNodesRef = useRef<any>({});
   const frictionIntervalRef = useRef<number | null>(null);
@@ -52,17 +51,17 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
   const ZOOM_STEP = 0.1;
 
   // ======================================================================
-  // == Lifecycle Effects                                                ==
+  // == Effects                                                ==
   // ======================================================================
 
-  // Effect to manage focus on headings during keyboard navigation
+  // Focus heading of the currently focused section
   useEffect(() => {
     if (focusedSectionIndex !== -1 && headingRefs.current[focusedSectionIndex]) {
       headingRefs.current[focusedSectionIndex]?.focus({ preventScroll: true });
     }
   }, [focusedSectionIndex]);
 
-  // Effect to clean up speech synthesis and soundscape on component unmount
+  // Clean up speech synthesis and soundscape on component unmount
   useEffect(() => {
     return () => {
       if ('speechSynthesis' in window && speechSynthesis.speaking) {
@@ -71,8 +70,8 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
       stopSoundscape();
     };
   }, []);
-  
-  // Effect to close download menu on outside click
+
+  // Close download menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
@@ -174,7 +173,7 @@ const handleToggleSoundscape = () => {
 
     // --- Create Audio Nodes ---
 
-    // Emotional Layer: Core pads and tones
+    // Emotional Layer
     const focusPad = context.createOscillator();
     focusPad.type = 'sine';
     focusPad.frequency.setValueAtTime(80, now);
@@ -256,12 +255,12 @@ const handleToggleSoundscape = () => {
     screenReaderVoice.start(now);
     frictionNoise.start(now);
 
-    // Stage 2: Onset of Concern
+    // Stage 2: Concern
     screenReaderGain.gain.linearRampToValueAtTime(0.08, now + 15);
     screenReaderGain.gain.linearRampToValueAtTime(0.08, now + 45);
     screenReaderGain.gain.linearRampToValueAtTime(0, now + 50);
 
-    // Stage 3: Friction 
+    // Stage 3: Tension 
     frictionGain.gain.linearRampToValueAtTime(0.05, now + 25);
     frictionGain.gain.linearRampToValueAtTime(0.05, now + 40);
     frictionGain.gain.linearRampToValueAtTime(0, now + 48);
@@ -295,7 +294,7 @@ const handleToggleSoundscape = () => {
         } else if (time >= 14 && time < 25) { // Stage 2: Concern
             volume = (Math.random() > 0.3) ? 0.05 : 0;
             nextClickDelay = 250 + Math.random() * 200;
-        } else if (time >= 25 && time < 45) { // Stage 3: Friction
+        } else if (time >= 25 && time < 45) { // Stage 3: Tension
             volume = (Math.random() > 0.6) ? 0.04 : 0;
             nextClickDelay = 300 + Math.random() * 500;
         } else if (time >= 45) { // Stage 4: Resolution
@@ -396,7 +395,6 @@ const handleToggleSoundscape = () => {
   };
   
   const handleDescriptionBlur = (e: React.FocusEvent<HTMLDivElement>) => {
-    // When focus leaves the container, reset the focused index
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setFocusedSectionIndex(-1);
     }
@@ -407,7 +405,6 @@ const handleToggleSoundscape = () => {
     if (!controls.length) return;
     const count = controls.length;
 
-    // On Enter, move focus into the toolbar to the first control
     if (e.key === 'Enter' && document.activeElement === controlsRef.current) {
         e.preventDefault();
         setFocusedControlIndex(0);
@@ -446,7 +443,6 @@ const handleToggleSoundscape = () => {
     setAnnouncement(`Preparing download as ${format.toUpperCase()}...`);
     setIsDownloadMenuOpen(false);
 
-    // Find the controls element to hide it. A ref is more robust than a class selector.
     const controlsElement = controlsRef.current;
     if (!controlsElement) {
         setIsDownloading(false);
@@ -457,7 +453,6 @@ const handleToggleSoundscape = () => {
     controlsElement.style.display = 'none';
 
     try {
-      // Allow the DOM to update before capturing
       await new Promise(resolve => setTimeout(resolve, 50));
 
       const canvas = await html2canvas(cardRef.current, {
